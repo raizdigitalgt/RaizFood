@@ -87,11 +87,13 @@ def seed_demo(settings):
                 continue
             plan = db.scalar(select(Plan).where(Plan.code == code))
             tenant = create_restaurant(db, slug, f"{name} · Demo", plan)
-            for number, code in enumerate(roles, start=1):
-                role = db.scalar(select(Role).where(Role.tenant_id == tenant.id, Role.code == code))
+            for number, role_code in enumerate(roles, start=1):
+                role = db.scalar(
+                    select(Role).where(Role.tenant_id == tenant.id, Role.code == role_code)
+                )
                 user = User(
-                    name=f"{ROLE_NAMES[code]} · Demo",
-                    email=f"{code}{number}@{slug}.example.org",
+                    name=f"{ROLE_NAMES[role_code]} · Demo",
+                    email=f"{role_code}{number}@{slug}.example.org",
                     password_hash=encoded,
                 )
                 db.add(user)

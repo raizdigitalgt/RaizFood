@@ -59,3 +59,25 @@ Las rutas usan el prefijo `/api/restaurants/{slug}`. El servidor valida el *slug
 Los recursos disponibles son `categories`, `items`, `variants`, `groups`, `modifiers`, `areas`, `preparation`, `tables`, `customers`, `folders`, `files` y `payment-methods`. Las listas admiten búsqueda y paginación. Los filtros específicos incluyen estados, área, categoría, platillo, grupo o carpeta. La carga de archivos valida el objeto `name`, `folder_id` y `content` codificado en Base64.
 
 Para cotizar se envían `quantity`, `variant_id` opcional y `modifier_ids`. La respuesta incluye el costo unitario, el costo de extras y el total en centavos. La operación es de solo lectura y prepara el POS.
+
+## Punto de venta y cocina
+
+Estas rutas están bajo `/api/restaurants/{slug}`.
+
+| Método y ruta | Operación |
+| --- | --- |
+| GET /catalog y POST /catalog/{id}/quote | Catálogo, disponibilidad y cotización |
+| GET /service-tables | Mesas y su pedido abierto |
+| GET /orders y /orders/filters | Pedidos filtrados y opciones de mesa o mesero del historial |
+| POST /orders | Crear borrador con `request_id` y modalidad habilitada |
+| GET /orders/{id} | Detalle, líneas con precio histórico y cuentas |
+| POST /orders/{id}/actions | Ejecutar una acción con UUID de solicitud y versión |
+| GET /orders/{id}/history, /orders/{id}/tickets y /orders/{id}/bill | Actividad, comandas y cuenta preliminar |
+| GET /kitchen y /kitchen/tickets/{id} | KDS y documento por estación autorizada |
+| POST /kitchen/tickets/{id}/state | Iniciar preparación o marcar lista una línea o comanda |
+| GET /pos/options | Modalidades, clientes y personal autorizado |
+| GET, PUT /pos/config y /pos/stations/{user_id} | Umbral, descuentos y asignaciones de preparación |
+| GET /operational-summary | Pedidos, mesas, tiempos de preparación y productos solicitados |
+| WS /events | Notificaciones autenticadas del restaurante |
+
+Las acciones de pedido son `add`, `edit`, `remove`, `details`, `confirm`, `send`, `cancel`, `transfer`, `discount`, `split`, `merge`, `bill`, `reopen_bill`, `deliver` y `delivery`. El detalle del esquema, ejemplos de campos y respuestas se puede consultar en OpenAPI. Los conflictos de versión o clave de reintento devuelven 409.

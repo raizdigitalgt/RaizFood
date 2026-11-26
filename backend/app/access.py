@@ -18,6 +18,7 @@ from app.models import (
     User,
     now,
 )
+from app.pos_permissions import PERMISSIONS, ROLE_OPERATIONS
 
 NEW_PERMISSIONS = {
     "categories.view",
@@ -69,6 +70,7 @@ ROLE_GRANTS = {
 ALL_PERMISSIONS = (
     ADMIN_PERMISSIONS
     | NEW_PERMISSIONS
+    | PERMISSIONS
     | set.union(*ROLE_GRANTS.values())
     | {
         "dashboard.view",
@@ -201,7 +203,11 @@ def create_restaurant(db: Session, slug: str, name: str, plan: Plan):
         roles[code] = role
     db.flush()
     for code, role in roles.items():
-        permissions = ALL_PERMISSIONS if code == "admin" else ROLE_GRANTS[code] | {"dashboard.view"}
+        permissions = (
+            ALL_PERMISSIONS
+            if code == "admin"
+            else ROLE_GRANTS[code] | ROLE_OPERATIONS.get(code, set()) | {"dashboard.view"}
+        )
         db.add_all(
             RolePermission(tenant_id=tenant.id, role_id=role.id, permission=permission)
             for permission in sorted(permissions)

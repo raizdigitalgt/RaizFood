@@ -7,10 +7,10 @@ import {
 export const restaurantNavigation = [
   { heading: "Principal", items: [
     { section: "dashboard", label: "Dashboard", icon: LayoutDashboard, scopes: ["dashboard.view"] },
-    { section: "pos", label: "Punto de venta", icon: Monitor, scopes: ["pos.access"], phase: 4 },
+    { section: "pos", label: "Punto de venta", icon: Monitor, scopes: ["pos.access"] },
     { section: "tables", label: "Mesas", icon: Armchair, scopes: ["tables.view"] },
-    { section: "orders", label: "Pedidos", icon: ClipboardList, scopes: ["orders.view"], phase: 4 },
-    { section: "kitchen", label: "Comandas", icon: CookingPot, scopes: ["kitchen.view"], phase: 4 },
+    { section: "orders", label: "Pedidos", icon: ClipboardList, scopes: ["orders.view"] },
+    { section: "kitchen", label: "Comandas", icon: CookingPot, scopes: ["kitchen.view"] },
   ] },
   { heading: "Gestión", items: [
     { section: "menu", label: "Menú", icon: BookOpen, scopes: ["menu.view"] },

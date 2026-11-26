@@ -1,10 +1,11 @@
 "use client";
 
-import { BookOpen, CalendarClock, ClipboardCheck, CookingPot, Images, Settings, UserPlus, UsersRound, Armchair, LayoutList } from "lucide-react";
+import { BookOpen, CalendarClock, ClipboardList, CookingPot, Images, Settings, UserPlus, UsersRound, Armchair, LayoutList } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { OperationalMetrics } from "@/components/pos/operations";
 import { money, type Restaurant as BaseRestaurant } from "@/lib/api";
 import { restaurantRights } from "@/lib/restaurant-nav";
 import {
@@ -23,6 +24,10 @@ type Audit = { id: string; user: string; action: string; subject: string; create
 type OverviewData = BaseRestaurant & { counts: Record<string, number>; subscription: SubscriptionInfo | null; activity: Audit[] };
 
 const shortcuts = [
+  ["pos?new=1", "Nuevo pedido", ClipboardList, ["orders.create"]],
+  ["tables", "Consultar mesas", Armchair, ["tables.view"]],
+  ["orders", "Consultar pedidos", ClipboardList, ["orders.view"]],
+  ["kitchen", "Abrir cocina", CookingPot, ["kitchen.view"]],
   ["menu?new=1", "Agregar platillo", BookOpen, ["menu.manage", "menu.create"]],
   ["categories?new=1", "Crear categoría", LayoutList, ["menu.manage", "categories.create"]],
   ["tables?new=1", "Crear mesa", Armchair, ["tables.manage"]],
@@ -55,6 +60,7 @@ export function RestaurantDashboard({ slug, permissions, name }: { slug: string;
       {shortcuts.filter(([, , , scopes]) => restaurantRights(permissions, ...scopes)).map(([href, title, Icon]) =>
         <Button key={href} asChild variant="outline"><Link href={`/app/${slug}/${href}`}><Icon size={17} /> {title}</Link></Button>)}
     </div></section>
+    {permissions.includes("reports.operational") && <OperationalMetrics slug={slug} />}
     {data ? <>
       <section className="metrics overview-metrics" aria-label="Indicadores del restaurante">
         {stats.map(([title, count, Icon], index) => <article key={title} className={`panel metric metric-${index % 4}`}>
@@ -72,11 +78,7 @@ export function RestaurantDashboard({ slug, permissions, name }: { slug: string;
         <h2>Actividad reciente</h2><AuditTable rows={data.activity} brief />
       </div>}
     </> : <Load error={query.error} retry={query.refetch} />}
-    <section className="panel commercial-inset commercial-stack">
-      <div className="commercial-row"><h2>Indicadores de operación</h2><ClipboardCheck size={20} /></div>
-      <p>Ventas, pedidos activos, ocupación y ticket promedio estarán disponibles con el punto de venta. Las alertas de inventario y el estado de caja se incorporarán con sus módulos.</p>
-    </section>
-  </>;
+   </>;
 }
 
 type SettingsData = Record<string, unknown> & { name: string; logo_id: string | null; cover_id: string | null; days: string[]; order_modes: string[] };
@@ -159,6 +161,7 @@ export function RestaurantSettings({ slug, permissions }: { slug: string; permis
       : query.data ? <SettingsForm key={tab} slug={slug} data={query.data} tab={tab} canMedia={permissions.includes("media.manage")} />
         : <Load error={query.error} retry={query.refetch} />}
     {tab === "Operación" && <div className="commercial-actions settings-links">
+      <Button asChild variant="outline"><Link href={`/app/${slug}/pos-settings`}>Configurar punto de venta</Link></Button>
       <Button asChild variant="outline"><Link href={`/app/${slug}/preparation`}>Áreas de preparación</Link></Button>
       {permissions.includes("tables.view") && <Button asChild variant="outline"><Link href={`/app/${slug}/areas`}>Áreas y salones</Link></Button>}
     </div>}

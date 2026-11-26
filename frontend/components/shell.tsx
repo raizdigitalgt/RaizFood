@@ -42,7 +42,7 @@ export function Shell({ user, children }: { user: Identity; children: ReactNode 
   const style = accent ? ({ "--primary": accent, "--primary-ink": luminance > .179 ? "#000" : "#fff" } as CSSProperties) : undefined;
   const active = (section: string) => path === `${base}/${section}` || path.startsWith(`${base}/${section}/`);
   const parentSection = /\/(areas)$/.test(path) ? "tables"
-    : /\/(preparation|payment-methods)$/.test(path) ? "settings" : undefined;
+    : /\/(preparation|payment-methods|pos-settings)$/.test(path) ? "settings" : undefined;
   const current = groups.flatMap((group) => [...group.items]).find((item) => active(item.section) || item.section === parentSection)?.label;
   const initials = user.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
 

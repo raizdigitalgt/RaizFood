@@ -7,3 +7,5 @@ Un rol pertenece a un restaurante y las claves foráneas compuestas impiden asoc
 La Fase 3 verifica explícitamente el tenant al leer, modificar y archivar. Las asociaciones entre categoría, platillo, variantes, grupos, áreas, mesas, clientes, carpetas y medios se restringen con consultas y claves compuestas. El catálogo consulta datos por lote. Los archivos se sirven a través de la API, que vuelve a validar la sesión y el alcance de la imagen.
 
 La configuración del plan elimina los permisos FEL del contexto Básico. Los datos de restaurantes diferentes se verifican en pruebas de API y SQLite.
+
+El POS aplica el mismo contexto a pedidos, líneas, mesas, clientes, estaciones, documentos, permisos y cuentas operativas. Los correlativos, las claves de reintento y los eventos se circunscriben al restaurante. El canal WebSocket valida cada lote contra la sesión y las estaciones autorizadas. Los UUID de otro restaurante quedan fuera del alcance incluso cuando se conocen.

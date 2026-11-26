@@ -1,5 +1,6 @@
 import "@fontsource-variable/plus-jakarta-sans";
 import "@/app/globals.css";
+import "@/app/pos.css";
 
 import type { Metadata } from "next";
 import type { ReactNode } from "react";

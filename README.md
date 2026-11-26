@@ -76,3 +76,9 @@ El [catálogo operativo](docs/MENU.md), la [gestión de mesas](docs/TABLES.md), 
 - Las pruebas crean bases separadas del entorno de desarrollo.
 
 Consulta [el estado de la entrega](docs/PROGRESS.md), [la arquitectura](docs/ARCHITECTURE.md), [los controles de seguridad](docs/SECURITY.md) y [el plan de implementación](docs/DEVELOPMENT_ROADMAP.md). El agente de impresión, Digifact y el despliegue quedan en las fases indicadas en el plan.
+
+## Fase 4 · Operación de restaurante
+
+Abre **Punto de venta**, **Mesas**, **Pedidos** o **Comandas** desde el panel del restaurante. En las cuentas demo, `waiter3@taqueria-central.example.org` opera el POS y `cook4@taqueria-central.example.org` abre la pantalla de cocina. El administrador configura las estaciones, los límites de descuento y las modalidades. El flujo guarda los pedidos en SQLite y muestra vistas previas de 80 mm.
+
+Guías de [POS](docs/POS.md), [pedidos y cuentas](docs/ORDERS.md), [cocina](docs/KITCHEN.md), [tiempo real](docs/WEBSOCKETS.md), [concurrencia](docs/ORDER_CONCURRENCY.md) y [documentos térmicos](docs/PRINTING.md). La impresión física, el inventario y los cobros corresponden a las siguientes fases.

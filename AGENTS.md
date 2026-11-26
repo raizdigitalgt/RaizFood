@@ -11,3 +11,5 @@ Monolito modular con Next.js, FastAPI y SQLite. Trabajar por fases y actualizar 
 - Mantener versiones de planes inmutables. Aplicar y revertir cobros y renovaciones bajo una escritura reservada. Procesar SMTP y generación de archivos fuera de la transacción.
 - Mantener los precios, cotizaciones y disponibilidades del catálogo bajo reglas de servidor. Las reservas de invitaciones cuentan para los cupos de la versión contratada.
 - Requerir autorización para despliegues públicos y certificaciones fiscales reales.
+- Validar versión y clave de idempotencia en las acciones del POS. Crear el pedido, actualizar ocupación, generar comandas y guardar auditoría en la transacción que protege cada operación.
+- Conservar importes históricos, cantidades y centavos asignados en cuentas divididas. Usar las estaciones autorizadas para consultas y notificaciones de cocina. Reservar estados financieros definitivos para la Fase 7.

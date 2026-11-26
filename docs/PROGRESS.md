@@ -70,3 +70,26 @@ SMTP se verificó con el proveedor simulado. La entrega real requiere credencial
 - Playwright en Edge: 5 recorridos aprobados. Ruff, ESLint, TypeScript y compilación Next.js aprobados.
 - SMTP se verificó en modo simulado. El orden de registros se ajusta mediante su posición numérica.
 - El catálogo, la cotización y las consultas operativas están listos para integrar el POS en la Fase 4. Los pedidos, cobros, inventario, impresión y FEL pertenecen a sus fases siguientes.
+
+## Fase 4 · Dark POS, pedidos y cocina
+
+- POS adaptable con catálogo de Fase 3, variantes y extras, precios históricos, tres modalidades y borradores persistentes en SQLite.
+- Mesas con pedido y estado operativo, traslados transaccionales, historial de pedidos, descuentos con motivo, cuentas divididas o reunidas y vistas preliminares de 80 mm.
+- Comandas iniciales, adicionales, de ajuste, cancelación y traslado por estación. El KDS muestra estados y demoras configurables. Los eventos WebSocket respetan el restaurante y las estaciones autorizadas. REST recupera el estado al reconectar y mantiene actualizaciones periódicas sin WebSocket.
+- Dashboard operativo y seed de desarrollo para estados de borrador, confirmado, enviado, preparación y listo.
+
+### Archivos principales
+
+- Backend nuevo en `backend/app/pos_*.py`. Se actualizaron `access.py`, `cli.py`, `main.py`, `restaurant_catalog.py`, `restaurant_demo.py`, `restaurant_records.py` y `restaurant_settings.py`. Se registró el esquema en `backend/migrations/env.py` y se actualizaron los bloqueos para WebSockets.
+- Migración `backend/migrations/versions/0007_pos_operations.py`, pruebas en `backend/tests/test_pos.py` y ampliación de `backend/tests/test_seed.py`.
+- Vistas nuevas en `frontend/components/pos/` y estilos en `frontend/app/pos.css`. Se actualizaron `frontend/app/app/[slug]/[section]/page.tsx`, `app/layout.tsx`, `app/session/page.tsx`, `components/auth.tsx`, `components/shell.tsx`, `components/restaurant/panel.tsx`, `lib/session.ts` y `lib/restaurant-nav.ts` dentro de `frontend/`. El recorrido de navegador está en `frontend/e2e/pos.spec.ts`.
+- Guías de [POS](POS.md), [pedidos](ORDERS.md), [mesas](TABLES.md), [cocina](KITCHEN.md), [WebSockets](WEBSOCKETS.md), [concurrencia](ORDER_CONCURRENCY.md) y [documentos](PRINTING.md).
+
+### Validación y alcance
+
+- Se restauró una copia de `0006` en un archivo independiente y se actualizó a `0007`. La base local también se migró. Alembic, integridad SQLite y claves foráneas aprobaron en ambas.
+- El respaldo previo de la base activa se registró con el manifiesto verificado en `backend/.data/backups/raizfood-139d99ab-225d-4b67-9843-21c0846adfe7.db`.
+- Pytest completó 27 pruebas con 92,15 % de cobertura global y 97,84 % en los módulos del POS. Ruff, ESLint, TypeScript y la compilación optimizada de Next.js aprobaron. Persisten avisos de Starlette con httpx y de cierre de conexiones SQLite en pruebas previas.
+- Edge completó seis recorridos, incluido el flujo de mesero, administrador, cocina y caja, la recuperación móvil y el respaldo por consultas periódicas con WebSocket bloqueado.
+- Las pruebas de concurrencia comprueban exclusividad de mesa, traslados simultáneos, versiones obsoletas y reintentos de creación y envío sin duplicados.
+- La impresión física, el agente local y ESC/POS se reservan para la Fase 5. La operación completamente offline y el registro de reservas quedan como ampliaciones. Inventario, caja, pagos y FEL corresponden a sus fases posteriores.

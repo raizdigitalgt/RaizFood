@@ -31,7 +31,14 @@ def read_settings(db, tenant):
         db.execute(select(m.settings).where(m.settings.c.tenant_id == tenant.id)).mappings().first()
     )
     if settings:
-        values.update(settings["profile"], **settings["preferences"])
+        values.update(settings["profile"])
+        values.update(
+            {
+                key: value
+                for key, value in settings["preferences"].items()
+                if key in SettingsInput.model_fields
+            }
+        )
         values.update({field: settings[field] for field in RELATIONS})
     return SettingsInput.model_validate(values).model_dump(mode="json")
 
@@ -61,8 +68,16 @@ def settings_update(slug: str, data: SettingsInput, request: Request, db: DB):
         references = {key: updates.pop(key) for key in RELATIONS}
         updates["days"] = list(dict.fromkeys(updates["days"]))
         updates["order_modes"] = list(dict.fromkeys(updates["order_modes"]))
-        stored = {"profile": profile, "preferences": updates, **references, "updated_at": now()}
-        if db.scalar(select(m.settings.c.tenant_id).where(m.settings.c.tenant_id == tenant.id)):
+        saved = db.scalar(
+            select(m.settings.c.preferences).where(m.settings.c.tenant_id == tenant.id)
+        )
+        stored = {
+            "profile": profile,
+            "preferences": {**(saved or {}), **updates},
+            **references,
+            "updated_at": now(),
+        }
+        if saved is not None:
             db.execute(
                 update(m.settings).where(m.settings.c.tenant_id == tenant.id).values(**stored)
             )

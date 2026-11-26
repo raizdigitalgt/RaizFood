@@ -1,5 +1,12 @@
 # Cambios
 
+## 0.4.0 · Punto de venta y cocina
+
+- Dark POS con pedidos persistentes en mesa, para llevar y a domicilio.
+- Mesas operativas, comandas por estación, envíos incrementales, ajustes, cancelaciones y KDS en vivo.
+- Traslados, descuentos auditados, división y combinación de cuentas y vistas preliminares de 80 mm.
+- Migración 0007, correlativos transaccionales, control de versiones, idempotencia y pruebas del servicio.
+
 ## 0.3.0 · Administración del restaurante
 
 - Menú, precios históricos, variantes, extras y catálogo operativo para la Fase 4.

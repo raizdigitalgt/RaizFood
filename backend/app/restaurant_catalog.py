@@ -78,12 +78,13 @@ def catalog(db, tenant):
     }
 
 
-def calculate(db, tenant, key, data):
+def calculate(db, tenant, key, data, *, details=False):
     item = get_row(db, m.items, tenant, key)
     category = get_row(db, m.categories, tenant, item["category_id"])
     if not category["active"] or not item["active"] or not item["available"]:
         raise HTTPException(409, "El platillo no está disponible")
     unit = item["price_cents"]
+    variant = None
     if data.variant_id:
         variant = get_row(db, m.variants, tenant, data.variant_id)
         if variant["item_id"] != key or not variant["active"] or not variant["available"]:
@@ -129,6 +130,8 @@ def calculate(db, tenant, key, data):
             raise HTTPException(422, f"Verifica la selección del grupo {group['name']}")
     extras = sum(modifier["price_cents"] for modifier in included)
     unit += extras
+    if details:
+        return item, variant, included, unit
     return {
         "item_id": key,
         "unit_cents": unit,

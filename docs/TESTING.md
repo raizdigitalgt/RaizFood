@@ -9,3 +9,5 @@ La Fase 2 añade pruebas de planes históricos, suscripciones, pagos parciales, 
 La Fase 3 verifica el CRUD de restaurante, precios, variantes, límites de modificadores, mesas por lote, imagen optimizada, carpetas, permisos de equipo y vigencia de planes. Las pruebas usan dos restaurantes y también verifican restricciones SQL. En Edge se recorren catálogo, multimedia, mesas, equipo, configuración y navegación adaptable.
 
 Comandos reproducibles en [README.md](../README.md).
+
+La Fase 4 agrega `backend/tests/test_pos.py` para pedidos, precios históricos, cocina por estación, transferencias, descuentos, división y combinación, auditoría, aislamiento, WebSocket y concurrencia. `frontend/e2e/pos.spec.ts` recorre la operación con sesiones de mesero, cocinero, administrador y cajero. Verifica entrega de actualizaciones en el navegador, variantes, extras, comandas incrementales, cuenta y recarga móvil. Ejecuta Edge con `$env:RAIZ_E2E_BROWSER = 'msedge'` antes de `./scripts/test.ps1 -Browser`.

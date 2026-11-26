@@ -30,8 +30,8 @@ export async function requirePlatform(destination: string, permission = "dashboa
   return user;
 }
 
-export async function requireRestaurant(slug: string, section: string, permission: string | string[]) {
-  const user = await requireIdentity(`/app/${slug}/${section}`);
+export async function requireRestaurant(slug: string, section: string, permission: string | string[], search = "") {
+  const user = await requireIdentity(`/app/${slug}/${section}${search}`);
   if (user.platform_admin) redirect(home(user));
   if (!user.tenant) redirect("/restaurantes");
   const scopes = Array.isArray(permission) ? permission : [permission];

@@ -41,7 +41,6 @@ const loginSchema = z.object({
 
 export function Login({ resetComplete = false, preview = false }: { resetComplete?: boolean; preview?: boolean }) {
   const { data: brand } = useBranding();
-  const router = useRouter();
   const [shown, setShown] = useState(false);
   const [otpRequired, setOtpRequired] = useState(false);
   const [error, setError] = useState("");
@@ -54,8 +53,7 @@ export function Login({ resetComplete = false, preview = false }: { resetComplet
       const user = await api<Identity>("/auth/login", {
         method: "POST", body: JSON.stringify({ ...values, otp: values.otp || undefined }),
       }, false);
-      router.replace(home(user));
-      router.refresh();
+      window.location.replace(home(user));
     } catch (reason) {
       if (reason instanceof ApiError && reason.message === "Ingresa el código de autenticación.") {
         setOtpRequired(true);
@@ -185,8 +183,7 @@ export function Resume({ destination }: { destination?: string }) {
     let active = true;
     renewSession().then((user) => {
       if (!active) return;
-      router.replace(destination || home(user));
-      router.refresh();
+      window.location.replace(destination || home(user));
     }).catch((reason) => {
       if (!active) return;
       if (reason instanceof ApiError && reason.status === 401) router.replace("/login");

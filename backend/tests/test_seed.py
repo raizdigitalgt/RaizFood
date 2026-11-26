@@ -3,6 +3,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import cli
+from app import pos_models as p
 from app.auth import hasher
 from app.config import Settings
 from app.models import Membership, Tenant, User
@@ -23,6 +24,20 @@ def test_development_seed_is_idempotent_and_blocked_in_test(service, monkeypatch
         assert db.scalar(select(func.count()).select_from(Tenant)) == 2
         assert db.scalar(select(func.count()).select_from(Membership)) == 9
         assert db.scalar(select(func.count()).select_from(User)) == 10
+        assert db.scalar(select(func.count()).select_from(p.orders)) == 10
+        assert set(db.scalars(select(p.orders.c.status).distinct())) == {
+            "draft",
+            "confirmed",
+            "sent",
+            "preparing",
+            "ready",
+        }
+        assert (
+            db.scalar(
+                select(func.count()).select_from(p.tickets).where(p.tickets.c.kind == "additional")
+            )
+            == 2
+        )
     identity = client.post(
         "/api/auth/login",
         json={

@@ -172,3 +172,7 @@ uvicorn==0.54.0
     # via
     #   -c requirements.txt
     #   -r requirements.in
+websockets==17.4
+    # via
+    #   -c requirements.txt
+    #   -r requirements.in

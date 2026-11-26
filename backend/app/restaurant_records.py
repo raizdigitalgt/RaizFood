@@ -268,6 +268,19 @@ def folder_cycle(db, tenant_id, key, parent):
         parent = get_row(db, m.media_folders, tenant_id, parent)["parent_id"]
 
 
+def check_area_in_use(db, tenant_id, key):
+    if db.scalar(
+        select(m.tables.c.id)
+        .where(
+            condition(m.tables, tenant_id),
+            m.tables.c.area_id == key,
+            m.tables.c.state.in_(("occupied", "payment_due", "reserved")),
+        )
+        .limit(1)
+    ):
+        raise HTTPException(409, "El área tiene mesas en uso")
+
+
 def record(db, resource_key, tenant_id, actor, data, key=None):
     resource = resource_for(resource_key)
     table = resource.table
@@ -283,6 +296,8 @@ def record(db, resource_key, tenant_id, actor, data, key=None):
         }
     ):
         raise HTTPException(409, "La mesa está en uso operativo")
+    if previous and resource_key == "areas" and not data["active"]:
+        check_area_in_use(db, tenant_id, key)
     if previous and resource_key in {"variants", "modifiers"}:
         parent = "item_id" if resource_key == "variants" else "group_id"
         if previous[parent] != data[parent]:
@@ -434,6 +449,8 @@ def remove_record(slug: str, resource: str, key: str, request: Request, db: DB):
             actor, access = record_access(request, db, slug, resource, "archive")
             tenant_id = access.tenant.id
             row = get_row(db, table, tenant_id, key)
+            if resource == "areas":
+                check_area_in_use(db, tenant_id, key)
             if resource in ARCHIVED:
                 db.execute(
                     update(table)
