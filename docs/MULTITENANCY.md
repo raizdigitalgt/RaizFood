@@ -4,4 +4,6 @@ Cada usuario puede tener una membresía por restaurante. La sesión conserva el 
 
 Un rol pertenece a un restaurante y las claves foráneas compuestas impiden asociar un rol de otro restaurante a una membresía. Las consultas de equipo filtran por el ID autorizado. Los cinco roles iniciales reciben permisos granulares. El permiso `users.manage` protege el acceso al equipo, y el servidor valida los permisos efectivos del rol que se intenta asignar.
 
+La Fase 3 verifica explícitamente el tenant al leer, modificar y archivar. Las asociaciones entre categoría, platillo, variantes, grupos, áreas, mesas, clientes, carpetas y medios se restringen con consultas y claves compuestas. El catálogo consulta datos por lote. Los archivos se sirven a través de la API, que vuelve a validar la sesión y el alcance de la imagen.
+
 La configuración del plan elimina los permisos FEL del contexto Básico. Los datos de restaurantes diferentes se verifican en pruebas de API y SQLite.

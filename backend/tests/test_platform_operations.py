@@ -3,6 +3,8 @@ from datetime import timedelta
 from io import BytesIO
 
 import pytest
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from cryptography.fernet import Fernet
 from fastapi.testclient import TestClient
 from PIL import Image
@@ -122,13 +124,14 @@ def test_verified_backup_download_and_independent_restore(service, monkeypatch, 
     created = client.post(f"{P}/backups")
     assert created.status_code == 201, created.text
     row = created.json()
-    assert row["revision"] == "0005" and row["state"] == "verified"
+    head = ScriptDirectory.from_config(Config("alembic.ini")).get_current_head()
+    assert row["revision"] == head and row["state"] == "verified"
     path, manifest = backup_files(settings, row["filename"])
     target = tmp_path / "restore" / "independent.db"
     with pytest.raises(ValueError, match="confirmación"):
         restore(settings, path, target, False)
     restore(settings, path, target, True)
-    assert integrity(target, immutable=True) == "0005"
+    assert integrity(target, immutable=True) == head
     assert client.post(f"{P}/backups/{row['id']}/verify").json()["valid"] is True
     assert client.get(f"{P}/backups/{row['id']}/download/db").content.startswith(b"SQLite format 3")
     assert b"sha256" in client.get(f"{P}/backups/{row['id']}/download/manifest").content

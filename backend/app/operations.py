@@ -25,12 +25,13 @@ platform = APIRouter(prefix="/platform", tags=["Plataforma"])
 restaurant = APIRouter(prefix="/restaurants/{slug}", tags=["Restaurante"])
 
 
-def restaurant_user(request: Request, db: DB, slug: str, permission: str):
+def restaurant_user(request: Request, db: DB, slug: str, permission: str | None):
     session, user = credentials(request, db)
     access = access_for(db, user, session.tenant_id)
     if not access or access.tenant.slug != slug:
         raise HTTPException(404, "Restaurante no disponible")
-    access.require(permission)
+    if permission:
+        access.require(permission)
     return user, access
 
 

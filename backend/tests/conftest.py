@@ -1,4 +1,5 @@
 import secrets
+from contextlib import closing
 from pathlib import Path
 
 import pytest
@@ -73,3 +74,25 @@ def member(client, slug, email, role="admin"):
             "role_code": role,
         },
     )
+
+
+@pytest.fixture
+def tenants(service):
+    app, platform = service
+    assert login(platform).status_code == 200
+    with closing(TestClient(app, base_url=ORIGIN, headers={"Origin": ORIGIN})) as north:
+        with closing(TestClient(app, base_url=ORIGIN, headers={"Origin": ORIGIN})) as south:
+            for label, plan, client in (
+                ("norte-fase3", "basic", north),
+                ("sur-fase3", "pro", south),
+            ):
+                restaurant(platform, label, plan)
+                email = f"admin@{label}.example.org"
+                assert member(platform, label, email).status_code == 201
+                assert login(client, email).status_code == 200
+            yield app, platform, north, south
+
+
+PREFIX = "/api/restaurants"
+NORTH = f"{PREFIX}/norte-fase3"
+SOUTH = f"{PREFIX}/sur-fase3"

@@ -205,7 +205,7 @@ const memberSchema = z.object({
   role_code: z.string().min(1, "Selecciona un rol."),
 });
 
-function MemberForm({ endpoint, choices, existingAllowed, close, done }: {
+export function MemberForm({ endpoint, choices, existingAllowed, close, done }: {
   endpoint: string; choices: Role[]; existingAllowed?: boolean; close: () => void; done: (name: string) => void;
 }) {
   const [existing, setExisting] = useState(false);

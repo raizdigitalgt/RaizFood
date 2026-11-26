@@ -6,4 +6,6 @@
 
 La Fase 2 añade pruebas de planes históricos, suscripciones, pagos parciales, renovaciones concurrentes, roles, SMTP simulado, invitaciones, actas de auditoría, personalización, copias verificadas y restauración en una base independiente. Las pruebas de navegador cubren el recorrido comercial, SMTP con un proveedor simulado y la modificación del logo. El SMTP real requiere credenciales y un destino autorizado.
 
+La Fase 3 verifica el CRUD de restaurante, precios, variantes, límites de modificadores, mesas por lote, imagen optimizada, carpetas, permisos de equipo y vigencia de planes. Las pruebas usan dos restaurantes y también verifican restricciones SQL. En Edge se recorren catálogo, multimedia, mesas, equipo, configuración y navegación adaptable.
+
 Comandos reproducibles en [README.md](../README.md).

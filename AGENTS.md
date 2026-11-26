@@ -9,4 +9,5 @@ Monolito modular con Next.js, FastAPI y SQLite. Trabajar por fases y actualizar 
 - Mantener credenciales y datos locales fuera de Git. Los datos de demostración se admiten solo en desarrollo.
 - Verificar migraciones, lint, tipos y pruebas antes de cerrar una fase. Crear un respaldo verificable antes de aplicar migraciones a una base existente.
 - Mantener versiones de planes inmutables. Aplicar y revertir cobros y renovaciones bajo una escritura reservada. Procesar SMTP y generación de archivos fuera de la transacción.
+- Mantener los precios, cotizaciones y disponibilidades del catálogo bajo reglas de servidor. Las reservas de invitaciones cuentan para los cupos de la versión contratada.
 - Requerir autorización para despliegues públicos y certificaciones fiscales reales.

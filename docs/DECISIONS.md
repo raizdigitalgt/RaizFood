@@ -7,4 +7,8 @@
 - El plan de catálogo puede cambiar. El contrato y cada período de renovación conservan la versión elegida.
 - El estado operativo de la suscripción se obtiene de sus fechas y de las decisiones manuales. El mantenimiento materializa las alertas, mientras que la autorización consulta el estado efectivo.
 - Se guardan imágenes decodificadas y normalizadas a PNG en SQLite para que respalden junto a los datos. Los formatos de entrada admitidos para logotipos son PNG, JPEG, WebP e ICO.
+- Los medios de restaurante se guardan en SQLite bajo alcance de tenant. El respaldo existente cubre las versiones optimizadas y miniaturas.
+- La administración usa estados de mesa manuales. Los estados que dependen de comandas, pedidos y cobros se reservan para Fase 4.
+- Aceptar una invitación convierte una reserva en una membresía dentro de la misma escritura reservada.
+
 - Un correo comercial se reclama en una transacción antes del envío. Si el proceso se interrumpe después de reclamarlo, el trabajo queda en revisión para evitar reenvíos automáticos de resultado incierto.

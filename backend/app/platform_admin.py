@@ -8,7 +8,7 @@ from typing import Literal
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response
 from sqlalchemy import delete, func, select, update
 
-from app.access import add_member, audit
+from app.access import access_for, add_member, audit, effective_grants, reserve_seat
 from app.auth import DB, digest, hasher, reserve_attempt
 from app.commercial import DEFAULT_METHODS, options, save_option, tenant_lookup, values
 from app.commercial_models import Invitation, PlatformAsset
@@ -286,7 +286,7 @@ def test_mail(data: MailTest, request: Request, db: DB):
     return {"status": result}
 
 
-def issue_invitation(db, data, actor, tenant):
+def issue_invitation(db, data, actor, tenant, delegated=None):
     if not read_smtp(db).get("enabled"):
         raise HTTPException(409, "Habilita el correo SMTP para enviar invitaciones")
     email = data.email.lower()
@@ -314,6 +314,11 @@ def issue_invitation(db, data, actor, tenant):
         raise HTTPException(429, "Espera un minuto para reenviar la invitación")
     for invitation in current:
         invitation.expires_at = now()
+    if tenant:
+        permissions = effective_grants(db, tenant, role)
+        if delegated and not permissions <= delegated.permissions:
+            raise HTTPException(403, "No puedes asignar permisos que no posees")
+        reserve_seat(db, tenant, permissions)
     token = token_urlsafe(32)
     db.add(
         Invitation(
@@ -337,13 +342,16 @@ def invite(request, db, data, slug=None):
         tenant = tenant_lookup(db, slug) if slug else None
         token = issue_invitation(db, data, actor, tenant)
         config = read_smtp(db)
-    settings = mail_settings(request)
+    return deliver_invitation(mail_settings(request), config, data.email, token)
+
+
+def deliver_invitation(settings, config, email, token):
     link = f"{settings.frontend_url.rstrip('/')}/accept-invitation#token={token}"
     return {
         "status": deliver(
             settings,
             config,
-            data.email,
+            email,
             "Invitación a Raíz Food",
             f"Activa tu cuenta en las próximas 24 horas: {link}",
         )
@@ -377,9 +385,16 @@ def accept_invitation(data: ResetInput, db: DB):
         actor = db.get(User, invitation.actor_id)
         from app.platform_access import platform_grants
 
-        if not actor.active or (
-            "restaurants" if invitation.tenant_id else "users"
-        ) not in platform_grants(db, actor):
+        delegated = None
+        if actor.platform_admin:
+            permission = "restaurants" if invitation.tenant_id else "users"
+            authorized = permission in platform_grants(db, actor)
+        else:
+            delegated = access_for(db, actor, invitation.tenant_id)
+            authorized = bool(
+                delegated and {"users.manage", "users.invite"} & delegated.permissions
+            )
+        if not actor.active or not authorized:
             raise HTTPException(409, "La invitación requiere una nueva autorización")
         user = User(
             name=invitation.name,
@@ -390,12 +405,12 @@ def accept_invitation(data: ResetInput, db: DB):
         )
         db.add(user)
         db.flush()
+        invitation.accepted_at = now()
         if invitation.tenant_id:
             tenant = db.get(Tenant, invitation.tenant_id)
             if not tenant.active:
                 raise HTTPException(409, "El restaurante está suspendido")
-            add_member(db, tenant, user, db.get(Role, invitation.role_id))
-        invitation.accepted_at = now()
+            add_member(db, tenant, user, db.get(Role, invitation.role_id), delegated)
         audit(db, user, "invitation.accept", user.id, invitation.tenant_id)
         enqueue(
             db,

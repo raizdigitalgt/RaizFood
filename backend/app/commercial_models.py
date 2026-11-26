@@ -125,6 +125,7 @@ class Invitation(Base):
     actor_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     expires_at: Mapped[int]
     accepted_at: Mapped[int | None]
+    cancelled_at: Mapped[int | None]
 
 
 class PlatformNotification(Identified, Base):

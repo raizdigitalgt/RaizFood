@@ -215,6 +215,7 @@ def choose(data: ChooseTenant, request: Request, response: Response, db: DB):
         if not tenant:
             raise HTTPException(404, "Restaurante no disponible")
         session.tenant_id = tenant.id
+        audit(db, user, "session.select_tenant", session.id, tenant.id)
         session.version += 1
         issue_access(request, response, session)
         return identity(db, session, user)

@@ -4,12 +4,46 @@ from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.commercial_models import OnboardingPlan, PlanVersion
+from app.commercial_models import Invitation, OnboardingPlan, PlanVersion
 from app.config import Settings
 from app.entitlements import contracted_plan, operational
-from app.models import AuditLog, Membership, Permission, Plan, Role, RolePermission, Tenant, User
+from app.models import (
+    AuditLog,
+    Membership,
+    Permission,
+    Plan,
+    Role,
+    RolePermission,
+    Tenant,
+    User,
+    now,
+)
 
-ADMIN_PERMISSIONS = {"users.manage", "roles.manage", "settings.manage"}
+NEW_PERMISSIONS = {
+    "categories.view",
+    "categories.create",
+    "categories.edit",
+    "categories.archive",
+    "menu.create",
+    "menu.edit",
+    "menu.archive",
+    "customers.view",
+    "customers.create",
+    "customers.edit",
+    "customers.archive",
+    "customers.export",
+    "users.invite",
+    "users.sessions",
+    "users.recover",
+}
+ADMIN_PERMISSIONS = {
+    "users.manage",
+    "roles.manage",
+    "settings.manage",
+    "users.invite",
+    "users.sessions",
+    "users.recover",
+}
 ROLE_NAMES = {
     "admin": "Administrador",
     "cashier": "Cajero",
@@ -34,6 +68,7 @@ ROLE_GRANTS = {
 }
 ALL_PERMISSIONS = (
     ADMIN_PERMISSIONS
+    | NEW_PERMISSIONS
     | set.union(*ROLE_GRANTS.values())
     | {
         "dashboard.view",
@@ -198,6 +233,48 @@ def usage(db: Session, tenant_ids: list[str]):
     return counts
 
 
+def effective_grants(db, tenant, role):
+    permissions = grants(db, role)
+    if not contracted_plan(db, tenant).fel_enabled:
+        permissions = {
+            permission for permission in permissions if not permission.startswith("fel.")
+        }
+    return permissions
+
+
+def seat_usage(db, tenant_id):
+    count = usage(db, [tenant_id])[tenant_id]
+    admin_roles = select(RolePermission.role_id).where(
+        RolePermission.tenant_id == tenant_id,
+        RolePermission.permission.in_(ADMIN_PERMISSIONS),
+    )
+    held = db.execute(
+        select(Invitation.role_id.in_(admin_roles), func.count())
+        .where(
+            Invitation.tenant_id == tenant_id,
+            Invitation.accepted_at.is_(None),
+            Invitation.expires_at > now(),
+        )
+        .group_by(Invitation.role_id.in_(admin_roles))
+    )
+    for admin, n in held:
+        count["admins" if admin else "staff"] += n
+        count["total"] += n
+    return count
+
+
+def reserve_seat(db, tenant, permissions):
+    plan = contracted_plan(db, tenant)
+    count = seat_usage(db, tenant.id)
+    admin = bool(permissions & ADMIN_PERMISSIONS)
+    enforce_capacity(plan, count["admins"] + int(admin), count["staff"] + int(not admin))
+
+
+def enforce_capacity(plan, admins, staff):
+    if admins > plan.max_admins or staff > plan.max_staff or admins + staff > plan.max_total:
+        raise HTTPException(409, "Se alcanzó el límite de usuarios de este plan")
+
+
 def add_member(
     db: Session, tenant: Tenant, user: User, role: Role, actor: RestaurantAccess | None = None
 ):
@@ -205,25 +282,10 @@ def add_member(
         raise HTTPException(409, "La cuenta o el rol no se puede asociar")
     if db.get(Membership, (user.id, tenant.id)):
         raise HTTPException(409, "La cuenta ya pertenece al restaurante")
-    role_permissions = grants(db, role)
-    if actor:
-        plan = contracted_plan(db, tenant)
-        effective = (
-            role_permissions
-            if plan.fel_enabled
-            else {
-                permission for permission in role_permissions if not permission.startswith("fel.")
-            }
-        )
-        if not effective <= actor.permissions:
-            raise HTTPException(403, "No puedes asignar permisos que no posees")
-    plan = contracted_plan(db, tenant)
-    count = usage(db, [tenant.id])[tenant.id]
-    admin = bool(role_permissions & ADMIN_PERMISSIONS)
-    if count["total"] >= plan.max_total or (
-        count["admins"] >= plan.max_admins if admin else count["staff"] >= plan.max_staff
-    ):
-        raise HTTPException(409, "Se alcanzó el límite de usuarios de este plan")
+    role_permissions = effective_grants(db, tenant, role)
+    if actor and not role_permissions <= actor.permissions:
+        raise HTTPException(403, "No puedes asignar permisos que no posees")
+    reserve_seat(db, tenant, role_permissions)
     db.add(Membership(user_id=user.id, tenant_id=tenant.id, role_id=role.id))
 
 

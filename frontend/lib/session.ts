@@ -30,10 +30,11 @@ export async function requirePlatform(destination: string, permission = "dashboa
   return user;
 }
 
-export async function requireRestaurant(slug: string, section: string, permission: string) {
+export async function requireRestaurant(slug: string, section: string, permission: string | string[]) {
   const user = await requireIdentity(`/app/${slug}/${section}`);
   if (user.platform_admin) redirect(home(user));
   if (!user.tenant) redirect("/restaurantes");
-  if (user.tenant.slug !== slug || !user.permissions.includes(permission)) notFound();
+  const scopes = Array.isArray(permission) ? permission : [permission];
+  if (user.tenant.slug !== slug || !scopes.some((scope) => user.permissions.includes(scope))) notFound();
   return user;
 }

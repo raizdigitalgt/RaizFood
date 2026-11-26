@@ -1,10 +1,11 @@
 from datetime import date, timedelta
 
 from fastapi import APIRouter, HTTPException, Request, Response
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import defer
 
-from app.access import audit, usage
+from app import restaurant_models
+from app.access import audit, seat_usage
 from app.auth import DB
 from app.commercial_models import (
     BillingPeriod,
@@ -216,7 +217,7 @@ def record_subscription(db, sub, actor, action):
 
 
 def require_capacity(db, tenant, version):
-    used = usage(db, [tenant.id])[tenant.id]
+    used = seat_usage(db, tenant.id)
     limits = (version.max_admins, version.max_staff, version.max_total)
     if any(
         used[key] > limit for key, limit in zip(("admins", "staff", "total"), limits, strict=True)
@@ -256,6 +257,17 @@ def subscription_summary(db, sub, tenant=None):
         "plan_code": plan.code,
         "revision": version.revision,
     }
+
+
+def mark_plan_request(db, tenant_id, plan_id):
+    table = restaurant_models.change_requests
+    db.execute(
+        update(table)
+        .where(
+            table.c.tenant_id == tenant_id, table.c.plan_id == plan_id, table.c.status == "pending"
+        )
+        .values(status="approved", updated_at=now())
+    )
 
 
 def subscription_lookup(db, key):
@@ -368,6 +380,7 @@ def new_subscription(data: SubscriptionInput, request: Request, db: DB):
             state="pending" if data.pending and due else "active",
         )
         tenant.plan_id = plan.id
+        mark_plan_request(db, tenant.id, plan.id)
         db.add(sub)
         db.flush()
         db.add(
@@ -449,6 +462,7 @@ def change_plan(key: str, data: ChangePlan, request: Request, db: DB):
         sub.plan_version_id = version.id
         sub.cycle = data.cycle
         tenant.plan_id = plan.id
+        mark_plan_request(db, tenant.id, plan.id)
         record_subscription(db, sub, actor, "plan")
         return subscription_summary(db, sub, tenant)
 

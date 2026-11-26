@@ -258,3 +258,47 @@ td { color: #cbd5e1; }
   .commercial-plan-grid, .commercial-chart-grid { grid-template-columns: minmax(0, 1fr); }
   .commercial-filters label { min-width: min(100%, 130px); }
 }
+
+.nav-pending { color: #8391a4; cursor: default; }
+.nav-pending small { display: block; font-size: .68rem; font-weight: 650; margin-top: 2px; }
+.workspace .workspace-logo { width: 30px; height: 30px; border-radius: 5px; object-fit: contain; border: 0; }
+.restaurant-card-grid, .restaurant-folder-grid, .picker-grid {
+  display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 235px), 1fr));
+}
+.restaurant-folder-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 185px), 1fr)); }
+.picker-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 112px), 1fr)); }
+.restaurant-card { overflow: hidden; min-width: 0; }
+.restaurant-card-body { display: grid; gap: 10px; padding: 16px; }
+.restaurant-card-body h2 { display: flex; gap: 7px; align-items: center; }
+.restaurant-photo {
+  width: 100%; height: 165px; background: #141c29; object-fit: cover; display: block;
+  border-bottom: 1px solid var(--line);
+}
+.restaurant-placeholder { display: grid; place-items: center; color: #8da0ba; }
+.restaurant-thumbnail { width: 58px; height: 46px; border: 1px solid var(--line); border-radius: 7px; }
+.restaurant-thumbnail svg { width: 17px; height: 17px; }
+.picker-option { font-size: .875rem; text-align: left; overflow: hidden; }
+.picker-option .restaurant-photo { height: 86px; }
+.picker-option span { display: block; padding: 7px 9px; overflow: hidden; text-overflow: ellipsis; }
+.photo-picker .commercial-row h2 { flex: 1 0 auto; }
+.restaurant-fieldset { display: grid; gap: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-width: 0; }
+.restaurant-fieldset legend { padding: 0 7px; color: var(--text); font-weight: 750; font-size: .9rem; }
+.restaurant-filters label:first-child { min-width: min(100%, 200px); }
+.permissions-matrix { display: grid; gap: 10px; }
+.role-permissions { white-space: normal; min-width: 250px; max-width: 620px; display: block; overflow-wrap: anywhere; }
+.settings-links { margin-top: 14px; }
+.table-state-available { color: #a5f3c1; background: #1b3b2e; }
+.table-state-available i { background: var(--success); }
+.table-state-cleaning { color: #d8bafa; background: #392e51; }
+.table-state-cleaning i { background: #c4a0f0; }
+.table-state-reserved i { background: var(--info); }
+.table-state-payment_due i { background: var(--warning); }
+.table-state-occupied i { background: var(--primary); }
+.table-state-out_of_service i { background: var(--muted); }
+@media (max-width: 600px) {
+  .restaurant-card-grid, .restaurant-folder-grid { grid-template-columns: 1fr; }
+  .restaurant-filters label { width: min(100%, 220px); }
+}
+
+.restaurant-cover { overflow: hidden; }
+.restaurant-cover .restaurant-photo { height: clamp(120px, 26vw, 265px); border: 0; }

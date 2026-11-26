@@ -24,4 +24,6 @@ erDiagram
 
 En el comercio, `plan_versions` conserva condiciones de cada revisión. `subscriptions` enlaza cada restaurante con una versión y `subscription_events` conserva su historial. `billing_periods` identifica un período por suscripción y fecha inicial. `subscription_payments` controla reintentos por período y clave de solicitud. Las tablas `platform_settings`, `platform_assets`, `invitations`, `platform_notifications`, `notification_reads`, `support_tickets`, `support_events` y `backup_records` se incorporaron en `0003`. `0004` agrega `mail_jobs` y admite eventos de auditoría sin usuario identificado. `0005` fija la versión de incorporación de cada restaurante con una relación propia.
 
+La revisión `0006` agrega configuración y perfiles locales, medios y carpetas, categorías, platillos, variantes, modificadores, historial de precios, áreas y mesas, clientes, métodos de pago y solicitudes de cambio. Sus relaciones usan tenant e identificador. La migración incorpora los nuevos permisos al rol Administrador existente y agrega un campo de cancelación a las invitaciones.
+
 Los IDs son UUID en texto. La membresía referencia el rol por tenant e ID. La sesión referencia al usuario y opcionalmente a una membresía activa. Los importes comerciales iniciales se guardan en centavos y los eventos temporales en segundos Unix UTC.

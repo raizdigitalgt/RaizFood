@@ -58,12 +58,20 @@ El flujo comercial parte de Planes y Restaurantes. En Suscripciones, selecciona 
 
 Configura `ENCRYPTION_KEY` con una clave de Fernet y `SMTP_ALLOWED_HOSTS` con los servidores SMTP autorizados. Puedes generar la clave desde la raíz con `.\backend\.venv\Scripts\python.exe -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`. Guárdala en el archivo local `.env` o en el gestor de secretos. Guarda la configuración desde Correo SMTP. Para pruebas locales se admite `SMTP_MODE=mock`, que devuelve el resultado simulado sin contactar a un proveedor. Configura una tarea con `scripts/maintenance.ps1` o `scripts/maintenance.sh` para alertas, cola de correo y respaldos. [Operación de respaldos](docs/BACKUP_RESTORE.md)
 
+## Administración del restaurante
+
+Entra con una cuenta del restaurante para administrar menú, variantes, extras, mesas, clientes, archivos y equipo. El seed local agrega platillos, ilustraciones, salones, mesas y clientes ficticios a los dos restaurantes de demostración. Se puede ejecutar de nuevo sin duplicar registros.
+
+La biblioteca utiliza WebP y guarda las imágenes en el SQLite persistente. Configura `RESTAURANT_IMAGE_MAX_BYTES` para ajustar el límite por imagen. Los archivos se incluyen en los respaldos de SQLite. La revisión de esquema de esta fase es `0006`.
+
+El [catálogo operativo](docs/MENU.md), la [gestión de mesas](docs/TABLES.md), la [biblioteca](docs/MEDIA.md), la [configuración](docs/RESTAURANT_SETTINGS.md) y los [permisos de restaurante](docs/ROLES_PERMISSIONS.md) tienen guías propias.
+
 ## Configuración y pruebas
 
 - `.env.example` enumera los parámetros de entorno. SQLite resuelve rutas relativas bajo `backend/`. La configuración local crea `backend/.data/raizfood.db`.
 - `FRONTEND_URL` es el origen permitido en solicitudes mutables. `RAIZ_BACKEND_URL` es la dirección interna de FastAPI que usa Next.js al compilar y ejecutar.
 - Los precios del seed son configurables en `.env`. Se guardan en centavos y se conservan al repetir el seed.
-- `.\scripts\migrate.ps1` ejecuta las migraciones pendientes. La Fase 2 llega a `0005`. Crea y comprueba un respaldo antes de actualizar una base existente. `.\scripts\test.ps1` ejecuta Ruff, Pytest, ESLint, validación de tipos y compilación.
+- `.\scripts\migrate.ps1` ejecuta las migraciones pendientes. La Fase 3 llega a `0006`. Crea y comprueba un respaldo antes de actualizar una base existente. `.\scripts\test.ps1` ejecuta Ruff, Pytest, ESLint, validación de tipos y compilación.
 - Para Playwright, ejecuta `npx playwright install chromium` en `frontend` y luego `.\scripts\test.ps1 -Browser` desde la raíz. En Windows puedes usar Edge instalado con `$env:RAIZ_E2E_BROWSER = 'msedge'`. En Linux usa `bash scripts/test.sh --browser`.
 - Las pruebas crean bases separadas del entorno de desarrollo.
 

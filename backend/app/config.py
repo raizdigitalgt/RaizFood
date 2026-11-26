@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     smtp_mode: Literal["live", "mock"] = "live"
     backup_directory: Path | None = None
     maintenance_mode: bool = False
+    restaurant_image_max_bytes: int = Field(8 * 1024 * 1024, ge=1024, le=16 * 1024 * 1024)
     access_token_expire_minutes: int = Field(15, ge=1, le=30)
     refresh_token_expire_days: int = Field(7, ge=1, le=30)
     basic_monthly_cents: int = Field(15000, ge=0)

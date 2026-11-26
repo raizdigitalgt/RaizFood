@@ -16,6 +16,11 @@ from app import (
     operations,
     platform_admin,
     platform_reporting,
+    restaurant_catalog,
+    restaurant_media,
+    restaurant_records,
+    restaurant_settings,
+    restaurant_staff,
 )
 from app.config import BACKEND, Settings
 from app.db import database_engine
@@ -103,4 +108,12 @@ def create_app(settings: Settings | None = None):
     app.include_router(platform_admin.public, prefix="/api")
     app.include_router(platform_reporting.router, prefix="/api")
     app.include_router(backups.router, prefix="/api")
+    for module in (
+        restaurant_records,
+        restaurant_settings,
+        restaurant_media,
+        restaurant_staff,
+        restaurant_catalog,
+    ):
+        app.include_router(module.router, prefix="/api")
     return app

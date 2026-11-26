@@ -1,5 +1,12 @@
 # Cambios
 
+## 0.3.0 · Administración del restaurante
+
+- Menú, precios históricos, variantes, extras y catálogo operativo para la Fase 4.
+- Áreas, mesas individuales y por lote, clientes, configuración y biblioteca multimedia por restaurante.
+- Equipo, cupos con invitaciones, roles personalizados, auditoría y solicitudes de cambio de plan.
+- Migración 0006 y pruebas de aislamiento, precios, registros vinculados y navegación.
+
 ## 0.2.0 · Superadministrador y gestión comercial
 
 - Planes versionados, gestión de restaurantes, contratos, historial comercial, pagos parciales e informes CSV/PDF.

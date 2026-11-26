@@ -74,11 +74,16 @@ def bootstrap(settings, email, name):
 def seed_demo(settings):
     if settings.app_env != "development":
         raise SystemExit("Los datos de demostración requieren APP_ENV=development")
+    from app.restaurant_demo import seed_restaurant
+
     encoded = read_password()
     with connect(settings) as db, write_transaction(db):
         seed_plans(db, settings)
         for slug, name, code, roles in DEMO:
-            if db.scalar(select(Tenant.id).where(Tenant.slug == slug)):
+            present = db.scalar(select(Tenant).where(Tenant.slug == slug))
+            if present:
+                if present.name == f"{name} · Demo":
+                    seed_restaurant(db, present, code)
                 continue
             plan = db.scalar(select(Plan).where(Plan.code == code))
             tenant = create_restaurant(db, slug, f"{name} · Demo", plan)
@@ -92,6 +97,8 @@ def seed_demo(settings):
                 db.add(user)
                 db.flush()
                 add_member(db, tenant, user, role)
+                db.flush()
+            seed_restaurant(db, tenant, code)
     print("Demostración inicializada. Las cuentas existentes conservan su contraseña.")
 
 
