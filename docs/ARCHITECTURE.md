@@ -1,0 +1,9 @@
+# Arquitectura
+
+Next.js App Router consume la API FastAPI a través de /api en el mismo origen. FastAPI separa autenticación, contexto de restaurante y operaciones de plataforma. SQLAlchemy y Alembic gestionan un SQLite persistente. La UI usa tokens Dark POS y paneles diferenciados por contexto.
+
+El navegador mantiene las credenciales de sesión en cookies HTTP-only. El identificador del restaurante activo se guarda en la sesión persistida. La URL se comprueba contra ese contexto. Las operaciones de plataforma se autorizan con un privilegio independiente.
+
+Los mayores riesgos iniciales son las consultas sin filtro de tenant, las carreras de cupo, la revocación de sesiones y los bloqueos de escritura en SQLite. Las restricciones, transacciones y pruebas de integración cubren estos puntos. El panel comercial organiza los permisos por módulo de plataforma. Los contratos apuntan a versiones inmutables de planes. Los períodos de cobro y confirmaciones operan en transacciones breves y exploran el saldo confirmado antes de renovar. El servicio de derechos calcula vigencia al atender una solicitud, incluso entre ejecuciones de mantenimiento.
+
+Los respaldos y el procesamiento de correo usan servicios separados dentro del monolito. La tarea de mantenimiento registra alertas y envía los correos en cola después de confirmar sus transacciones. Los logotipos y comprobantes provienen de SQLite y se sirven según permisos y finalidad. La integración fiscal con Digifact, impresión y despliegue pertenecen a fases siguientes.

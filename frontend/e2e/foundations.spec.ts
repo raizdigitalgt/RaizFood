@@ -1,0 +1,45 @@
+import { expect, test } from "@playwright/test";
+
+const password = "Cuenta ficticia de Playwright";
+
+test("alta de restaurante, acceso de su equipo y menú móvil", async ({ page }) => {
+  await page.goto("/platform/dashboard");
+  await expect(page).toHaveURL(/\/login$/);
+  await page.getByLabel("Correo electrónico").fill("platform@example.org");
+  await page.getByLabel("Contraseña", { exact: true }).fill("incorrecta");
+  await page.getByRole("button", { name: "Ingresar" }).click();
+  await expect(page.locator("main").getByRole("alert")).toContainText("Correo o contraseña incorrectos");
+  await page.getByLabel("Contraseña", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Ingresar" }).click();
+  await expect(page.getByRole("heading", { name: "Resumen de plataforma" })).toBeVisible();
+  await page.getByRole("link", { name: "Gestionar restaurantes" }).click();
+  await page.getByRole("button", { name: "Nuevo restaurante" }).click();
+  const restaurant = page.getByRole("dialog", { name: "Registrar restaurante" });
+  await restaurant.getByLabel("Nombre comercial").fill("Café de Prueba");
+  await restaurant.getByLabel("Identificador").fill("cafe-prueba");
+  await restaurant.getByLabel("Plan").selectOption("basic");
+  await restaurant.getByRole("button", { name: "Registrar restaurante" }).click();
+  await expect(page.getByRole("row", { name: /Café de Prueba/ })).toBeVisible();
+  await page.getByRole("button", { name: "Agregar usuario a Café de Prueba" }).click();
+  const member = page.getByRole("dialog", { name: "Agregar usuario" });
+  await member.getByLabel("Correo electrónico").fill("cafeteria@example.org");
+  await member.getByLabel("Nombre", { exact: true }).fill("Teresa");
+  await member.getByLabel("Contraseña inicial").fill(password);
+  await member.getByLabel("Rol").selectOption("admin");
+  await member.getByRole("button", { name: "Agregar usuario" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Teresa se agregó" })).toBeVisible();
+  await page.locator(".profile summary").click();
+  await page.getByRole("button", { name: "Cerrar sesión" }).click();
+  await expect(page).toHaveURL(/\/login$/);
+  await page.getByLabel("Correo electrónico").fill("cafeteria@example.org");
+  await page.getByLabel("Contraseña", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Ingresar" }).click();
+  await expect(page).toHaveURL(/\/app\/cafe-prueba\/dashboard$/);
+  await expect(page.getByRole("heading", { name: "Café de Prueba" })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Abrir menú" }).click();
+  await page.getByRole("link", { name: "Equipo" }).click();
+  await expect(page.getByRole("heading", { name: "Equipo", exact: true })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "cafeteria@example.org" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Abrir menú" })).toHaveAttribute("aria-expanded", "false");
+});

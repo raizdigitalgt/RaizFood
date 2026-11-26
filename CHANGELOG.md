@@ -1,0 +1,15 @@
+# Cambios
+
+## 0.2.0 · Superadministrador y gestión comercial
+
+- Planes versionados, gestión de restaurantes, contratos, historial comercial, pagos parciales e informes CSV/PDF.
+- Dashboard con indicadores y gráficas de SQLite, roles y sesiones de plataforma, SMTP cifrado, invitaciones, personalización y auditoría.
+- Respaldos verificables con manifiesto, restauración CLI, mantenimiento programable, soporte y avisos persistentes.
+- FEL general muestra la elegibilidad y el estado de preparación para Digifact.
+
+## 0.1.0 · Fundamentos
+
+- Aplicación local de Raíz Food con FastAPI, Next.js y SQLite en modo WAL.
+- Migraciones iniciales, planes Básico y Pro, autenticación, MFA de plataforma en producción y recuperación asistida.
+- Paneles protegidos de plataforma y restaurante con alta de establecimientos, asignación de miembros y consulta de cupos.
+- Pruebas de integración sobre SQLite en archivo, prueba E2E de navegador y configuración de CI.

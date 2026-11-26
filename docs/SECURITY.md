@@ -1,0 +1,11 @@
+# Seguridad
+
+El servidor valida la sesión y los permisos antes de acceder a recursos protegidos. Argon2id protege las contraseñas. La sesión utiliza un JWT HS256 de vida corta y un token opaco de renovación. SQLite conserva hashes de renovación y detecta la reutilización. Las cookies son HTTP-only y SameSite Lax. En producción se exige HTTPS y las cookies pasan a Secure. Las solicitudes mutables exigen coincidencia exacta de origen.
+
+La plataforma exige TOTP al iniciar sesión con `APP_ENV=production`. Genera `ENCRYPTION_KEY` con `cryptography.fernet.Fernet.generate_key()` usando un medio privado. Desde `backend`, ejecuta `python -m app.cli enroll-mfa --email correo@example.org` con el entorno virtual activo. Registra la clave en el autenticador y conserva el secreto de cifrado por separado. Cada paso TOTP válido se acepta una sola vez. La restauración de la base requiere conservar su clave de cifrado.
+
+El límite de intentos usa ventanas de 15 minutos por cuenta y dirección observada por el backend. La configuración de proxy de producción debe preservar la IP de cliente desde un proxy de confianza. La auditoría registra altas, login, logout, recuperación, activación de MFA y detección de reutilización de tokens.
+
+Los permisos de plataforma se evalúan en cada API y corresponden a roles comerciales, soporte, auditoría y administración. Las descargas de respaldos, la configuración SMTP y la gestión de usuarios de plataforma requieren privilegios reservados al superadministrador. Cambiar rol o desactivar una cuenta revoca sus sesiones. Debe quedar un superadministrador activo.
+
+La recuperación tiene entrega SMTP y alternativa CLI. Los enlaces caducan tras 15 minutos, se guardan como hashes y revocan las sesiones al utilizarse. Las invitaciones caducan en 24 horas. Las credenciales SMTP se almacenan cifradas mediante Fernet. El servicio acepta STARTTLS o TLS directo con verificación de certificado y usa `SMTP_ALLOWED_HOSTS` para limitar destinos permitidos. Las pruebas usan SMTP simulado. Los avisos comerciales salen desde la cola de mantenimiento. Las operaciones de envío quedan fuera de transacciones SQLite. [Cliente SMTP de Python](https://docs.python.org/3.14/library/smtplib.html)
